@@ -60,8 +60,23 @@ function animate() {
     player.draw();
     projectiles.forEach((projectile) => {
         projectile.update();
-        console.log("animating")
-    })
+    });
+
+    enemies.forEach((enemy, index) => {
+        enemy.update();
+
+        // after each enemy updates it will check the distance to every projectile.
+        projectiles.forEach((projectile, projectileIndex) => {
+            const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+            if(dist - enemy.radius - projectile.radius < 1) {
+                // prevents enemy flicker on death
+                setTimeout(() => {
+                    enemies.splice(index, 1);
+                    projectiles.splice(projectileIndex, 1);
+                }, 0);
+            }
+        });
+    });
 }
 
 addEventListener("click", (event) => {
@@ -83,10 +98,70 @@ addEventListener("click", (event) => {
         'red',
         velocity
     ));
-
-    console.log("shoot")
 });
+//  ==================================================================================== //
+
+const enemies = [];
+
+class Enemy {
+    constructor(x, y, radius, color, velocity) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.velocity = velocity;
+    }
+
+    draw() {
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        context.fillStyle = this.color;
+        context.fill();
+    }
+
+    update() {
+        this.draw();
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+    }
+}
+
+function spawnEnemy() {
+    setInterval(() => {
+        const radius = 20;
+        let x
+        let y
+
+        if(Math.random() < 0.5){
+            x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
+            y = Math.random() * canvas.height;
+        }
+        else {
+            x = Math.random() * canvas.width;
+            y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
+        }
+
+        
+        const color = 'green'
+        // get the angle for the projectile to travel on
+        const angle = Math.atan2(
+            canvas.height / 2 - y,
+            canvas.width / 2 - x
+        )
+        // assigning the x and y velocity based on the angle
+        const velocity = {
+            x: Math.cos(angle),
+            y: Math.sin(angle)
+        }
+        enemies.push(new Enemy(
+            x,
+            y,
+            radius,
+            color,
+            velocity
+        ));
+    }, 1000)
+}
 
 animate();
-
-//  ==================================================================================== //
+spawnEnemy();
