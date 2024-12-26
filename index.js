@@ -58,8 +58,19 @@ function animate() {
     animationId = requestAnimationFrame(animate);
     context.clearRect(0, 0, canvas.width, canvas.height);
     player.draw();
-    projectiles.forEach((projectile) => {
+    projectiles.forEach((projectile, index) => {
         projectile.update();
+        // remove projectiles for off screen
+        if(projectile.x + projectile.radius > canvas.width ||
+            projectile.x + projectile.radius < 0) {
+                projectiles.splice(index, 1);
+        }
+
+        if(projectile.y + projectile.radius > canvas.height ||
+            projectile.y + projectile.radius < 0) {
+                projectiles.splice(index, 1);
+                console.log('des')
+        }
     });
 
     enemies.forEach((enemy, index) => {
