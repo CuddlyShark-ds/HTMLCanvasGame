@@ -4,12 +4,19 @@ canvas.height = innerHeight;
 
 const context = canvas.getContext('2d');
 
+const expText = document.getElementById("expText");
+const expNeededText = document.getElementById("expNeededText");
+
 class Player {
     constructor(x, y, radius, color) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = color;
+
+        this.level = 1;
+        this.expToLevel = 10;
+        this.currentExp = 0;
     }
 
     draw() {
@@ -97,6 +104,17 @@ function animate() {
                     setTimeout(() => {
                         // Remove enemy
                         enemies.splice(index, 1);
+                        player.currentExp++;
+                        console.log(player.currentExp)
+                        expText.innerHTML = player.currentExp.toString();
+                        // update 
+                        if(player.currentExp >= player.expToLevel) {
+                            player.level++;
+                            player.currentExp = 0;
+                            player.expToLevel = Math.round((player.expToLevel * 2) * 0.85);
+                            scoreText.innerHTML = player.currentExp.toString();
+                            expNeededText.innerHTML = player.expToLevel.toString();
+                        }
                     
                         for(let i = 0; i < 8; i++) {
                             particles.push(new Particle(
