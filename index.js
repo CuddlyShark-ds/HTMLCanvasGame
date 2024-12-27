@@ -60,6 +60,16 @@ function animate() {
     context.fillStyle = 'rgba(0, 0, 0, 0.1)'
     context.fillRect(0, 0, canvas.width, canvas.height);
     player.draw();
+    // particles on enemy death
+    particles.forEach((particle, index) => {
+        if(particle.alpha <= 0) {
+            particles.splice(index, 1);
+        }
+        else {
+            particle.update();
+        }
+    });
+
     projectiles.forEach((projectile, index) => {
         projectile.update();
         // remove projectiles for off screen
@@ -71,13 +81,11 @@ function animate() {
         if(projectile.y + projectile.radius > canvas.height ||
             projectile.y + projectile.radius < 0) {
                 projectiles.splice(index, 1);
-                console.log('des')
         }
     });
-
+    // Check to see if enemies have been hit by projectiles
     enemies.forEach((enemy, index) => {
         enemy.update();
-
         // after each enemy updates it will check the distance to every projectile.
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
@@ -87,13 +95,27 @@ function animate() {
                 if(enemy.health <= 0) {
                     // prevents enemy flicker on death
                     setTimeout(() => {
-                    enemies.splice(index, 1);
-                    projectiles.splice(projectileIndex, 1);
+                        // Remove enemy
+                        enemies.splice(index, 1);
+                    
+                        for(let i = 0; i < 8; i++) {
+                            particles.push(new Particle(
+                                enemy.x,
+                                enemy.y,
+                                Math.random() * 5,
+                                enemy.color,
+                                {
+                                    x: (Math.random() - 0.5) * (Math.random() * 6),
+                                    y: (Math.random() - 0.5) * (Math.random() * 6)
+                                }
+                            ))
+                        }
+                        // Remove Projectile
+                        projectiles.splice(projectileIndex, 1);
                     }, 0);
                 }
                 else {
                     setTimeout(() => {
-                        console.log(enemy);
                         projectiles.splice(projectileIndex, 1);
                     }, 0);
                 }
@@ -129,9 +151,8 @@ addEventListener("click", (event) => {
     ));
 });
 //  ==================================================================================== //
-
+//  ===================== Enemies ====================================================== //
 const enemies = [];
-
 class Enemy {
     constructor(x, y, radius, color, velocity) {
         this.health = 3;
@@ -193,5 +214,38 @@ function spawnEnemy() {
     }, 1000)
 }
 
+//  ==================================================================================== //
+
+const particles = [];
+const friction = 0.98;
+class Particle {
+    constructor(x, y, radius, color, velocity) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.color = color;
+        this.velocity = velocity;
+        this.alpha = 1
+    }
+
+    draw() {
+        context.save();
+        context.globalAlpha = this.alpha
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+        context.fillStyle = this.color;
+        context.fill();
+        context.restore();
+    }
+
+    update() {
+        this.draw();
+        this.velocity.x *= friction;
+        this.velocity.y *= friction;
+        this.x = this.x + this.velocity.x;
+        this.y = this.y + this.velocity.y;
+        this.alpha -= 0.01;
+    }
+}
 animate();
 spawnEnemy();
