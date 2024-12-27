@@ -24,7 +24,7 @@ const player = new Player(
     canvas.width / 2, 
     canvas.height / 2,
     30,
-    'blue'
+    'purple'
 );
 
 //  ==================================== Projectiles ================================= //
@@ -56,7 +56,9 @@ const projectiles = [];
 let animationId;
 function animate() {
     animationId = requestAnimationFrame(animate);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    // adding the 0.1 to alpha gives a bit of a streaming tail effect to the enemies and projectiles
+    context.fillStyle = 'rgba(0, 0, 0, 0.1)'
+    context.fillRect(0, 0, canvas.width, canvas.height);
     player.draw();
     projectiles.forEach((projectile, index) => {
         projectile.update();
@@ -79,12 +81,22 @@ function animate() {
         // after each enemy updates it will check the distance to every projectile.
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
+            // Removes the enemy
             if(dist - enemy.radius - projectile.radius < 1) {
-                // prevents enemy flicker on death
-                setTimeout(() => {
+                enemy.health--;
+                if(enemy.health <= 0) {
+                    // prevents enemy flicker on death
+                    setTimeout(() => {
                     enemies.splice(index, 1);
                     projectiles.splice(projectileIndex, 1);
-                }, 0);
+                    }, 0);
+                }
+                else {
+                    setTimeout(() => {
+                        console.log(enemy);
+                        projectiles.splice(projectileIndex, 1);
+                    }, 0);
+                }
             }
         });
 
@@ -104,16 +116,16 @@ addEventListener("click", (event) => {
     )
     // assigning the x and y velocity based on the angle
     const velocity = {
-        x: Math.cos(angle),
-        y: Math.sin(angle)
+        x: Math.cos(angle) * 4,
+        y: Math.sin(angle) * 4
     }
     // Pushes a new Projectile object to the projectiles array for rendering
     projectiles.push(new Projectile(
         canvas.width / 2,
         canvas.height / 2,
         5,
-        'red',
-        velocity
+        'purple',
+        velocity,
     ));
 });
 //  ==================================================================================== //
@@ -122,6 +134,7 @@ const enemies = [];
 
 class Enemy {
     constructor(x, y, radius, color, velocity) {
+        this.health = 3;
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -158,8 +171,8 @@ function spawnEnemy() {
             y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
         }
 
-        
-        const color = 'green'
+        // NOTE: ===========> enemies color will determine their starting stats.
+        const color = ['white', 'blue', 'yellow'];
         // get the angle for the projectile to travel on
         const angle = Math.atan2(
             canvas.height / 2 - y,
@@ -174,7 +187,7 @@ function spawnEnemy() {
             x,
             y,
             radius,
-            color,
+            color[0],
             velocity
         ));
     }, 1000)
