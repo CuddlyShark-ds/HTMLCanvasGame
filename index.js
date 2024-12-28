@@ -172,8 +172,8 @@ addEventListener("click", (event) => {
 //  ===================== Enemies ====================================================== //
 const enemies = [];
 class Enemy {
-    constructor(x, y, radius, color, velocity) {
-        this.health = 3;
+    constructor(health, x, y, radius, color, velocity) {
+        this.health = health;
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -197,10 +197,11 @@ class Enemy {
 
 function spawnEnemy() {
     setInterval(() => {
-        const radius = 20;
+        let radius = 20;
         let x
         let y
 
+        // choose a spawn location
         if(Math.random() < 0.5){
             x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
             y = Math.random() * canvas.height;
@@ -210,8 +211,6 @@ function spawnEnemy() {
             y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
         }
 
-        // NOTE: ===========> enemies color will determine their starting stats.
-        const color = ['white', 'blue', 'yellow'];
         // get the angle for the projectile to travel on
         const angle = Math.atan2(
             canvas.height / 2 - y,
@@ -222,13 +221,47 @@ function spawnEnemy() {
             x: Math.cos(angle),
             y: Math.sin(angle)
         }
-        enemies.push(new Enemy(
-            x,
-            y,
-            radius,
-            color[0],
-            velocity
-        ));
+
+        // NOTE: ===========> enemies color will determine their starting stats.
+        const color = ['grey', 'blue', 'yellow'];
+        // Note: random number between 1 and 100
+        let numberSelection = Math.floor(Math.random() * 100)
+        // Note: grey = 1 - 70, blue = 71 - 90, yellow = 91 - 100
+        // Note: create enemy based on color.
+        if(numberSelection < 70){
+            console.log("grey enemy");
+            enemies.push(new Enemy(
+                3,
+                x,
+                y,
+                10,
+                color[0],
+                velocity
+            ));
+        }
+        else if(numberSelection < 90) {
+            console.log("blue enemy");
+            enemies.push(new Enemy(
+                4,
+                x,
+                y,
+                15,
+                color[1],
+                velocity
+            ));
+        }
+        else {
+            console.log("yellow enemy");
+            enemies.push(new Enemy(
+                5,
+                x,
+                y,
+                20,
+                color[2],
+                velocity
+            ));
+        }
+        
     }, 1000)
 }
 
