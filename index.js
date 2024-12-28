@@ -7,25 +7,9 @@ const context = canvas.getContext('2d');
 const expText = document.getElementById("expText");
 const expNeededText = document.getElementById("expNeededText");
 
-class Player {
-    constructor(x, y, radius, color) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.color = color;
-
-        this.level = 1;
-        this.expToLevel = 10;
-        this.currentExp = 0;
-    }
-
-    draw() {
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        context.fillStyle = this.color;
-        context.fill();
-    }
-}
+const enemies = [];
+const projectiles = [];
+const particles = [];
 
 const player = new Player(
     canvas.width / 2, 
@@ -34,32 +18,7 @@ const player = new Player(
     'purple'
 );
 
-//  ==================================== Projectiles ================================= //
 
-class Projectile {
-    constructor(x, y, radius, color, velocity) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.color = color;
-        this.velocity = velocity;
-    }
-
-    draw() {
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        context.fillStyle = this.color;
-        context.fill();
-    }
-
-    update() {
-        this.draw();
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-    }
-}
-
-const projectiles = [];
 let animationId;
 function animate() {
     animationId = requestAnimationFrame(animate);
@@ -112,7 +71,7 @@ function animate() {
                             player.level++;
                             player.currentExp = 0;
                             player.expToLevel = Math.round((player.expToLevel * 2) * 0.85);
-                            scoreText.innerHTML = player.currentExp.toString();
+                            expText.innerHTML = player.currentExp.toString();
                             expNeededText.innerHTML = player.expToLevel.toString();
                         }
                     
@@ -168,32 +127,6 @@ addEventListener("click", (event) => {
         velocity,
     ));
 });
-//  ==================================================================================== //
-//  ===================== Enemies ====================================================== //
-const enemies = [];
-class Enemy {
-    constructor(health, x, y, radius, color, velocity) {
-        this.health = health;
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.color = color;
-        this.velocity = velocity;
-    }
-
-    draw() {
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        context.fillStyle = this.color;
-        context.fill();
-    }
-
-    update() {
-        this.draw();
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-    }
-}
 
 function spawnEnemy() {
     setInterval(() => {
@@ -265,38 +198,5 @@ function spawnEnemy() {
     }, 1000)
 }
 
-//  ==================================================================================== //
-
-const particles = [];
-const friction = 0.98;
-class Particle {
-    constructor(x, y, radius, color, velocity) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
-        this.color = color;
-        this.velocity = velocity;
-        this.alpha = 1
-    }
-
-    draw() {
-        context.save();
-        context.globalAlpha = this.alpha
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-        context.fillStyle = this.color;
-        context.fill();
-        context.restore();
-    }
-
-    update() {
-        this.draw();
-        this.velocity.x *= friction;
-        this.velocity.y *= friction;
-        this.x = this.x + this.velocity.x;
-        this.y = this.y + this.velocity.y;
-        this.alpha -= 0.01;
-    }
-}
 animate();
 spawnEnemy();
