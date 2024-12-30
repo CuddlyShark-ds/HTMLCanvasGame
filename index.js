@@ -1,6 +1,3 @@
-// Things to do 
-// 1. pause enemy spawn during level screen pause
-
 const canvas = document.querySelector('canvas');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -9,13 +6,15 @@ const context = canvas.getContext('2d');
 
 const expText = document.getElementById("expText");
 const expNeededText = document.getElementById("expNeededText");
+const startGameBtn = null;
 
-const enemies = [];
-const particles = [];
-const projectiles = [];
+let enemies = [];
+let particles = [];
+let projectiles = [];
 let projectileSpeed = 4;
 let projectileRadius = 3;
 let isPaused = false;
+let totalScore = 0;
 
 const player = new Player(
     canvas.width / 2, 
@@ -111,6 +110,8 @@ function animate() {
         const playerDist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if(playerDist - enemy.radius - player.radius < 1){
             cancelAnimationFrame(animationId);
+            GameOver();
+            isPaused = true;
         }
     });
 }
@@ -168,6 +169,7 @@ function spawnEnemy() {
             // choose an enemy type based on random number
             if(numberSelection < 70){
                 console.log("grey enemy");
+                totalScore += 1;
                 enemies.push(new Enemy(
                     3,
                     x,
@@ -180,6 +182,7 @@ function spawnEnemy() {
             }
             else if(numberSelection < 90) {
                 console.log("blue enemy");
+                totalScore += 3;
                 enemies.push(new Enemy(
                     4,
                     x,
@@ -192,6 +195,7 @@ function spawnEnemy() {
             }
             else {
                 console.log("yellow enemy");
+                totalScore += 5;
                 enemies.push(new Enemy(
                     5,
                     x,
@@ -206,15 +210,13 @@ function spawnEnemy() {
     }, 1000)
 }
 
-// note upgrades projectile speed, radius, ???
-
 function levelUpAlert(){
-    const levelUpBox = document.getElementById("levelUpBox");
+    const UIBox = document.getElementById("UIBox");
     // add a div for level up selection
     const newDiv = document.createElement("div");
-    newDiv.className = "levelUpContainer";
+    newDiv.className = "UIContainer";
     newDiv.setAttribute("id", "alertDiv");
-    levelUpBox.appendChild(newDiv);
+    UIBox.appendChild(newDiv);
 
     const buttonOne = document.createElement("button");
     buttonOne.setAttribute("id", "btnOne");
@@ -229,11 +231,6 @@ function levelUpAlert(){
     newDiv.appendChild(buttonTwo);
 
     cancelAnimationFrame(animationId);
-}
-
-function removeLevelUpAlert() {
-    const divToRemove = document.getElementById("alertDiv");
-    divToRemove.remove();
 }
 
 function perkSelected(selection) {
@@ -254,6 +251,48 @@ function perkSelected(selection) {
     }
     isPaused = false;
 }
+
+function removeLevelUpAlert() {
+    const divToRemove = document.getElementById("alertDiv");
+    divToRemove.remove();
+}
+
+function GameOver() {
+    const UIBox = document.getElementById("UIBox");
+    // add a div to hold the game over popup
+    const newDiv = document.createElement("div");
+    newDiv.className = "gameOver";
+    newDiv.setAttribute("id", "gameOver");
+    UIBox.appendChild(newDiv);
+
+    const scoreText = document.createElement("div");
+    scoreText.className = "score";
+    scoreText.innerHTML = totalScore.toString();
+    newDiv.appendChild(scoreText);
+
+    const pointsText = document.createElement("div");
+    pointsText.className = "points";
+    pointsText.innerHTML = "Points";
+    newDiv.appendChild(pointsText);
+
+    const startButton = document.createElement("button");
+    startButton.className = "startBtn";
+    startButton.setAttribute("onclick", "gameStart(this)")
+    startButton.innerHTML = "Start Game";
+    newDiv.appendChild(startButton);
+}
+
+function gameStart(event){
+    const divToRemove = document.getElementById("gameOver");
+    divToRemove.remove();
+
+    enemies = [];
+    projectiles = [];
+    isPaused = false;
+    animate();
+    spawnEnemy();
+}
+
 
 animate();
 spawnEnemy();
