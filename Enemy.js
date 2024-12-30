@@ -1,11 +1,12 @@
 class Enemy {
-    constructor(health, x, y, radius, color, velocity) {
+    constructor(health, x, y, radius, color, velocity, expValue) {
         this.health = health;
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = color;
         this.velocity = velocity;
+        this.expValue = expValue;
     }
 
     draw() {
