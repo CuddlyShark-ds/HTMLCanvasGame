@@ -1,13 +1,9 @@
 class Player {
-    constructor(x, y, radius, color) {
+    constructor({x, y, radius, color}) {
         this.x = x;
         this.y = y;
-        this.radius = radius;
+        this.radius = radius * window.devicePixelRatio;
         this.color = color;
-
-        this.level = 1;
-        this.expToLevel = 10;
-        this.currentExp = 0;
     }
 
     draw() {
